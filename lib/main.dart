@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
-import 'pages/app.dart';
+import 'package:provider/provider.dart';
 import 'providers/matchProvider.dart';
+import 'providers/pageProvider.dart';
+import 'providers/showUnitProvider.dart';
 import 'components/topBar.dart';
 import 'components/bottomBar.dart';
-import 'package:provider/provider.dart';
+import 'pages/app.dart';
+import 'pages/records.dart';
 
 void main() {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (context) => Matches()),
+      ChangeNotifierProvider(create: (context) => Pages()),
+      ChangeNotifierProvider(create: (context) => ShowUnit()),
     ],
     child: const MyApp(),
   ));
@@ -38,11 +43,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final pages = const [MainApp(), RecordPage()];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: TopBar()),
-        body: MainApp(),
+        body: pages[context.watch<Pages>().pageIndex],
         bottomNavigationBar: BottomBar());
   }
 }

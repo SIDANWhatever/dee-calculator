@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/pageProvider.dart';
 import '../providers/matchProvider.dart';
 import '../components/addUser.dart';
 
@@ -16,33 +17,42 @@ class _MainAppState extends State<MainApp> {
     return
         // Column(children: <Widget>[
         Stack(children: <Widget>[
+      SizedBox.expand(
+          child: GestureDetector(
+              onHorizontalDragEnd: (DragEndDetails details) => {
+                    if (details.primaryVelocity! < 0)
+                      {context.read<Pages>().changePage(1)}
+                    else if (details.primaryVelocity! > 0)
+                      {context.read<Pages>().changePage(0)}
+                  })),
       Container(
           alignment: const Alignment(0.0, -0.6),
-          child: context.watch<Matches>().currentPlayers.isNotEmpty
-              ? MyCard(player: context.watch<Matches>().currentPlayers[0])
-              : const Text("No players added yet")),
+          child: MyCard(
+              player: context.watch<Matches>().currentPlayers[0],
+              userPosition: 0)),
       Container(
           alignment: const Alignment(-0.7, 0.0),
-          child: context.watch<Matches>().currentPlayers.length > 1
-              ? MyCard(player: context.watch<Matches>().currentPlayers[1])
-              : const Text("No players added yet")),
+          child: MyCard(
+              player: context.watch<Matches>().currentPlayers[1],
+              userPosition: 1)),
       Container(
           alignment: const Alignment(0.7, 0.0),
-          child: context.watch<Matches>().currentPlayers.length > 2
-              ? MyCard(player: context.watch<Matches>().currentPlayers[2])
-              : const Text("No players added yet")),
+          child: MyCard(
+              player: context.watch<Matches>().currentPlayers[2],
+              userPosition: 2)),
       Container(
           alignment: const Alignment(0.0, 0.6),
-          child: context.watch<Matches>().currentPlayers.length > 3
-              ? MyCard(player: context.watch<Matches>().currentPlayers[3])
-              : const Text("No players added yet"))
+          child: MyCard(
+              player: context.watch<Matches>().currentPlayers[3],
+              userPosition: 3))
     ]);
   }
 }
 
 class MyCard extends StatefulWidget {
   final int player;
-  const MyCard({required this.player, super.key});
+  final int userPosition;
+  const MyCard({required this.player, required this.userPosition, super.key});
 
   @override
   State<MyCard> createState() => _MyCardState();
@@ -67,33 +77,39 @@ class _MyCardState extends State<MyCard> {
                           elevation: 0,
                           backgroundColor: Colors.transparent,
                           children: [
-                            context.watch<Matches>().currentPlayers.length == 4
-                                ? Result(winner: widget.player)
-                                : const AddUser()
+                            context.watch<Matches>().currentPlayers.contains(-1)
+                                ? AddUser(userPosition: widget.userPosition)
+                                : Result(winner: widget.player)
                           ],
                         ));
               },
               child: Container(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      context.watch<Matches>().persons[widget.player].name,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                child: widget.player == -1
+                    ? const Icon(Icons.group_add)
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            context
+                                .watch<Matches>()
+                                .persons[widget.player]
+                                .name,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            '${context.watch<Matches>().persons[widget.player].cumulatedScore * context.watch<Matches>().unit}',
+                            style: const TextStyle(
+                              fontSize: 28,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    Text(
-                      '${context.watch<Matches>().persons[widget.player].cumulatedScore}',
-                      style: const TextStyle(
-                        fontSize: 30,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
               ),
             )));
   }
@@ -154,40 +170,40 @@ class _ResultState extends State<Result> {
     int thirdPlayerIndex = context.read<Matches>().currentPlayers[2];
     int fourthPlayerIndex = context.read<Matches>().currentPlayers[3];
 
-    // Calculate the true result
-    int firstPlayerResult = 0;
-    int secondPlayerResult = 0;
-    int thirdPlayerResult = 0;
-    int fourthPlayerResult = 0;
+    // // Calculate the true result
+    // int firstPlayerResult = 0;
+    // int secondPlayerResult = 0;
+    // int thirdPlayerResult = 0;
+    // int fourthPlayerResult = 0;
 
-    firstPlayerResult = (secondPlayerRemainingCard - firstPlayerRemainingCard) +
-        (thirdPlayerRemainingCard - firstPlayerRemainingCard) +
-        (fourthPlayerRemainingCard - firstPlayerRemainingCard);
+    // firstPlayerResult = (secondPlayerRemainingCard - firstPlayerRemainingCard) +
+    //     (thirdPlayerRemainingCard - firstPlayerRemainingCard) +
+    //     (fourthPlayerRemainingCard - firstPlayerRemainingCard);
 
-    secondPlayerResult =
-        (firstPlayerRemainingCard - secondPlayerRemainingCard) +
-            (thirdPlayerRemainingCard - secondPlayerRemainingCard) +
-            (fourthPlayerRemainingCard - secondPlayerRemainingCard);
+    // secondPlayerResult =
+    //     (firstPlayerRemainingCard - secondPlayerRemainingCard) +
+    //         (thirdPlayerRemainingCard - secondPlayerRemainingCard) +
+    //         (fourthPlayerRemainingCard - secondPlayerRemainingCard);
 
-    thirdPlayerResult = (firstPlayerRemainingCard - thirdPlayerRemainingCard) +
-        (secondPlayerRemainingCard - thirdPlayerRemainingCard) +
-        (fourthPlayerRemainingCard - thirdPlayerRemainingCard);
+    // thirdPlayerResult = (firstPlayerRemainingCard - thirdPlayerRemainingCard) +
+    //     (secondPlayerRemainingCard - thirdPlayerRemainingCard) +
+    //     (fourthPlayerRemainingCard - thirdPlayerRemainingCard);
 
-    fourthPlayerResult =
-        (firstPlayerRemainingCard - fourthPlayerRemainingCard) +
-            (secondPlayerRemainingCard - fourthPlayerRemainingCard) +
-            (thirdPlayerRemainingCard - fourthPlayerRemainingCard);
+    // fourthPlayerResult =
+    //     (firstPlayerRemainingCard - fourthPlayerRemainingCard) +
+    //         (secondPlayerRemainingCard - fourthPlayerRemainingCard) +
+    //         (thirdPlayerRemainingCard - fourthPlayerRemainingCard);
 
     // Write record in Match
     context.read<Matches>().addGameRecord(
         firstPlayerIndex,
-        firstPlayerResult,
+        firstPlayerRemainingCard,
         secondPlayerIndex,
-        secondPlayerResult,
+        secondPlayerRemainingCard,
         thirdPlayerIndex,
-        thirdPlayerResult,
+        thirdPlayerRemainingCard,
         fourthPlayerIndex,
-        fourthPlayerResult);
+        fourthPlayerRemainingCard);
 
     // Reset variables
     firstPlayerRemainingCard = 1;
@@ -223,25 +239,29 @@ class _ResultState extends State<Result> {
                       alignment: const Alignment(0.0, -0.7),
                       child: ScoreCard(
                           setCountCallback: countCards,
-                          win: 0 == widget.winner,
+                          win: context.watch<Matches>().currentPlayers[0] ==
+                              widget.winner,
                           player: context.watch<Matches>().currentPlayers[0])),
                   Container(
                       alignment: const Alignment(-1.0, 0.0),
                       child: ScoreCard(
                           setCountCallback: countCards,
-                          win: 1 == widget.winner,
+                          win: context.watch<Matches>().currentPlayers[1] ==
+                              widget.winner,
                           player: context.watch<Matches>().currentPlayers[1])),
                   Container(
                       alignment: const Alignment(1.0, 0.0),
                       child: ScoreCard(
                           setCountCallback: countCards,
-                          win: 2 == widget.winner,
+                          win: context.watch<Matches>().currentPlayers[2] ==
+                              widget.winner,
                           player: context.watch<Matches>().currentPlayers[2])),
                   Container(
                       alignment: const Alignment(0.0, 0.7),
                       child: ScoreCard(
                           setCountCallback: countCards,
-                          win: 3 == widget.winner,
+                          win: context.watch<Matches>().currentPlayers[3] ==
+                              widget.winner,
                           player: context.watch<Matches>().currentPlayers[3])),
                   Container(
                       alignment: Alignment.bottomCenter,
@@ -278,6 +298,7 @@ class ScoreCard extends StatefulWidget {
 }
 
 class _ScoreCardState extends State<ScoreCard> {
+  @override
   void initState() {
     super.initState();
     if (widget.win == true) {
@@ -313,7 +334,7 @@ class _ScoreCardState extends State<ScoreCard> {
                             },
                         magnification: 1.5,
                         overAndUnderCenterOpacity: 0.6,
-                        itemExtent: 25,
+                        itemExtent: 22,
                         perspective: 0.001,
                         physics: const FixedExtentScrollPhysics(),
                         childDelegate: ListWheelChildBuilderDelegate(
@@ -366,6 +387,7 @@ class PlayerName extends StatelessWidget {
         height: 50,
         alignment: const Alignment(0.0, 0.5),
         child: Text(context.watch<Matches>().persons[player].name,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               color: Colors.orange,
               fontSize: 20,

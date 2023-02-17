@@ -4,7 +4,8 @@ import '../providers/matchProvider.dart';
 import 'dart:developer';
 
 class AddUser extends StatefulWidget {
-  const AddUser({super.key});
+  final int userPosition;
+  const AddUser({super.key, this.userPosition = 0});
 
   @override
   State<AddUser> createState() => _AddUserState();
@@ -15,13 +16,14 @@ class _AddUserState extends State<AddUser> {
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment.center,
-      child: const AddUserCard(),
+      child: AddUserCard(userPosition: widget.userPosition),
     );
   }
 }
 
 class AddUserCard extends StatefulWidget {
-  const AddUserCard({super.key});
+  final int userPosition;
+  const AddUserCard({super.key, this.userPosition = 0});
 
   @override
   State<AddUserCard> createState() => _AddUserCardState();
@@ -45,7 +47,7 @@ class _AddUserCardState extends State<AddUserCard> {
 
   void click(BuildContext context) {
     log("Logging the text ${controller.text}");
-    context.read<Matches>().addUser(Person(name: newName));
+    context.read<Matches>().addUser(Person(name: newName), widget.userPosition);
     Navigator.pop(context);
     controller.clear();
   }
@@ -84,7 +86,6 @@ class _AddUserCardState extends State<AddUserCard> {
                       onPressed: () => click(context),
                     ),
                   ),
-                  Text(controller.text)
                 ],
               )),
         ));

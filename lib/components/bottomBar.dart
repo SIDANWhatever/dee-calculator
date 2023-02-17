@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/pageProvider.dart';
 
 class BottomBar extends StatelessWidget {
   const BottomBar({super.key});
@@ -6,6 +8,7 @@ class BottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      onTap: (index) => context.read<Pages>().changePage(index),
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
@@ -16,7 +19,7 @@ class BottomBar extends StatelessWidget {
           label: '戰績',
         ),
       ],
-      currentIndex: 0,
+      currentIndex: context.watch<Pages>().pageIndex,
       selectedItemColor: Colors.amber[800],
     );
   }
